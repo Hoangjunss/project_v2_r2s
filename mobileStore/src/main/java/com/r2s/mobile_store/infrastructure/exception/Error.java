@@ -34,6 +34,8 @@ public enum Error {
     PRODUCT_UNABLE_TO_DELETE(2005, "Unable to delete product", HttpStatus.INTERNAL_SERVER_ERROR),
     PRODUCT_INVALID_NAME(2006, "Invalid name", HttpStatus.BAD_REQUEST),
     PRODUCT_INVALID_PRICE(2007, "Invalid price", HttpStatus.BAD_REQUEST),
+    PRODUCT_INVALID_STOCK(2008, "Invalid stock", HttpStatus.BAD_REQUEST),
+    PRODUCT_INVALID_DESCRIPTION(2009, "Invalid description", HttpStatus.BAD_REQUEST),
     //Order error codes
     //Category error codes
     CATEGORY_NOT_FOUND(3001, "Category not found", HttpStatus.NOT_FOUND),
@@ -42,6 +44,20 @@ public enum Error {
     CATEGORY_UNABLE_TO_UPDATE(3004, "Unable to update category", HttpStatus.INTERNAL_SERVER_ERROR),
     CATEGORY_UNABLE_TO_DELETE(3005, "Unable to delete category", HttpStatus.INTERNAL_SERVER_ERROR),
     CATEGORY_INVALID_NAME(3006, "Invalid name", HttpStatus.BAD_REQUEST),
+
+    MANUFACTURER_NOT_FOUND(4001, "Manufacturer not found", HttpStatus.NOT_FOUND),
+    MANUFACTURER_ALREADY_EXISTS(4002, "Manufacturer already exists", HttpStatus.CONFLICT),
+    MANUFACTURER_UNABLE_TO_SAVE(4003, "Unable to save Manufacturer", HttpStatus.INTERNAL_SERVER_ERROR),
+    MANUFACTURER_UNABLE_TO_UPDATE(4004, "Unable to update Manufacturer", HttpStatus.INTERNAL_SERVER_ERROR),
+    MANUFACTURER_UNABLE_TO_DELETE(4005, "Unable to delete Manufacturer", HttpStatus.INTERNAL_SERVER_ERROR),
+    MANUFACTURER_INVALID_NAME(4006, "Invalid name", HttpStatus.BAD_REQUEST),
+
+    CONDITION_NOT_FOUND(5001, "Condition not found", HttpStatus.NOT_FOUND),
+    CONDITION_ALREADY_EXISTS(5002, "Condition already exists", HttpStatus.CONFLICT),
+    CONDITION_UNABLE_TO_SAVE(5003, "Unable to save Condition", HttpStatus.INTERNAL_SERVER_ERROR),
+    CONDITION_UNABLE_TO_UPDATE(5004, "Unable to update Condition", HttpStatus.INTERNAL_SERVER_ERROR),
+    CONDITION_UNABLE_TO_DELETE(5005, "Unable to delete Condition", HttpStatus.INTERNAL_SERVER_ERROR),
+    CONDITION_INVALID_NAME(5006, "Invalid name", HttpStatus.BAD_REQUEST),
     //Jwt token-related error
     JWT_INVALID(1101, "Invalid JWT token", HttpStatus.UNAUTHORIZED),
     JWT_EXPIRED(1102, "JWT token expired", HttpStatus.UNAUTHORIZED),

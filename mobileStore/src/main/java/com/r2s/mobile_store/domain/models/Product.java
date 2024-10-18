@@ -17,7 +17,7 @@ public class Product {
     private Integer id;
     private String productName;
     private Double unitPrice;
-    private int unitStock;
+    private Integer unitStock;
     private String description;
     @ManyToOne
     @JoinColumn(name="idManufacturer")
