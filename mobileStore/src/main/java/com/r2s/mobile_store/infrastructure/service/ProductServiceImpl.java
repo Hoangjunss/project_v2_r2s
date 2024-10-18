@@ -5,6 +5,8 @@ import com.r2s.mobile_store.domain.repository.ProductRepository;
 import com.r2s.mobile_store.domain.service.ProductService;
 import com.r2s.mobile_store.infrastructure.exception.CustomException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.r2s.mobile_store.infrastructure.exception.Error;
 
@@ -32,6 +34,17 @@ public class ProductServiceImpl implements ProductService {
         product.setId(getGenerationId());
         return productRepository.save(product);
     }
+
+    @Override
+    public Page<Product> getList(Pageable pageable) {
+        return  productRepository.findAll(pageable);
+    }
+
+    @Override
+    public Product findById(Integer id) {
+        return productRepository.findById(id).orElseThrow(()->new CustomException(Error.PRODUCT_NOT_FOUND));
+    }
+
     public Integer getGenerationId() {
         UUID uuid = UUID.randomUUID();
         return (int) (uuid.getMostSignificantBits() & 0xFFFFFFFFL);

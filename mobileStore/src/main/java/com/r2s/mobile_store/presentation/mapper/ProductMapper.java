@@ -27,7 +27,7 @@ public class ProductMapper {
         productDto.setCategory(product.getCategory().getName());
         productDto.setCondition(product.getCondition().getName());
         productDto.setManufacturer(product.getManufacturer().getName());
-        productDto.setProductImage(product.getProductImage().getUrl());
+        productDto.setUrl(product.getProductImage().getUrl());
 
         return productDto;
     }

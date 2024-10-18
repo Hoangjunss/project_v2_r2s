@@ -18,5 +18,5 @@ public class ProductCreateDTO {
     private Integer manufacturer;
     private Integer category;
     private Integer condition;
-    private MultipartFile productImage;
+    private MultipartFile url;
 }

@@ -24,5 +24,5 @@ public class ProductDto {
     private String manufacturer;
     private String category;
     private String condition;
-    private String productImage;
+    private String url;
 }

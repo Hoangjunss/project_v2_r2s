@@ -5,11 +5,12 @@ import com.r2s.mobile_store.application.dto.user.AuthenticationDTO;
 import com.r2s.mobile_store.application.dto.user.UserLoginDTO;
 import com.r2s.mobile_store.application.dto.user.UserRegistrationDTO;
 import com.r2s.mobile_store.application.service.UserApplicationService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+@Slf4j
 @RequestMapping("/user")
 @RestController
 public class UserController {
@@ -17,6 +18,7 @@ public class UserController {
     private UserApplicationService userService;
     @PostMapping("/signup")
     public ResponseEntity<?> registration(@RequestBody UserRegistrationDTO createUserRequest) {
+        log.info("user :{}",createUserRequest.toString());
        return new ResponseEntity<>(userService.registration(createUserRequest), HttpStatus.CREATED);
     }
     @PostMapping("/signin")

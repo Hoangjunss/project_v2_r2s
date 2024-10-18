@@ -10,6 +10,8 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -22,6 +24,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class WebSecutiryConfiguration {
 @Autowired
 private OurUserDetailsService ourUserDetailsService;
@@ -39,7 +42,7 @@ private JwtAuthenticationFilter jwtAuthenticationFilter;
                 .csrf(AbstractHttpConfigurer::disable)
 
                 // Configure các luồng truy cập
-                .authorizeHttpRequests((auth) -> auth.requestMatchers("/api/v1/user/signup","/api/v1/user/signin","/api/v1/user/refreshtoken","api/v1/image").permitAll()
+                .authorizeHttpRequests((auth) -> auth.requestMatchers("/user/signup","/user/signin","/user/refreshtoken","/image").permitAll()
                     // Xác thực tất cả các request
                         .anyRequest()
                         .authenticated()

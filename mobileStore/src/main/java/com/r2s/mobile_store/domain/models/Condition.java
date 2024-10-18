@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "condition")
+@Table(name = "product_condition")
 public class Condition {
     @Id
     private Integer id;
