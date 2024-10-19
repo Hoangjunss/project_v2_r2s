@@ -1,0 +1,47 @@
+package com.r2s.mobile_store.application.service;
+
+import com.r2s.mobile_store.application.dto.product.ProductCreateDTO;
+import com.r2s.mobile_store.application.dto.product.ProductDto;
+import com.r2s.mobile_store.domain.models.*;
+import com.r2s.mobile_store.domain.service.*;
+import com.r2s.mobile_store.presentation.mapper.ProductMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+@Slf4j
+@Service
+public class ProductApplicationService {
+    @Autowired
+    private ProductService productService;
+    @Autowired
+    private ManufacturerService manufacturerService;
+    @Autowired
+    private ConditionService conditionService;
+    @Autowired
+    private CategoryService categoryService;
+    @Autowired
+    private ProductImageService productImageService;
+    @Autowired
+    private ProductMapper productMapper;
+    public ProductDto createProduct(ProductCreateDTO productCreateDTO) throws IOException {
+        Category category=categoryService.findById(productCreateDTO.getCategory());
+        Manufacturer manufacturer=manufacturerService.findById(productCreateDTO.getManufacturer());
+        Condition condition=conditionService.findById(productCreateDTO.getCondition());
+        log.info("product :{}",productCreateDTO.toString());
+        ProductImage productImage=productImageService.addProductImage(productCreateDTO.getUrl());
+
+        Product product=productMapper.conventProductCreateDTOToProduct(productCreateDTO,category,manufacturer,condition,productImage);
+
+        return productMapper.conventProductToProductDto(productService.addProduct(product));
+    }
+    public Page<ProductDto> getList(Pageable pageable) {
+        return productService.getList(pageable).map(product -> productMapper.conventProductToProductDto(product));
+    }
+    public ProductDto findById(Integer id){
+        return productMapper.conventProductToProductDto(productService.findById(id));
+    }
+}
