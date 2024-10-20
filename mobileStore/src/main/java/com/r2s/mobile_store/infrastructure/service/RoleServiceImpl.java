@@ -11,18 +11,6 @@ import java.util.UUID;
 public class RoleServiceImpl implements RoleService {
     @Autowired
     private RoleRepository roleRepository;
-    @Override
-    public Role createRole(Role role) {
-        role.setId(getGenerationId());
-        return roleRepository.save(role);
-    }
-
-    @Override
-    public Role UpdateRole(Role role) {
-        Role roleFind=findById(role.getId());
-
-        return roleRepository.save(role);
-    }
 
     @Override
     public Role findById(Integer id) {
@@ -34,9 +22,5 @@ public class RoleServiceImpl implements RoleService {
         return roleRepository.findByName(name).orElseThrow();
     }
 
-    public Integer getGenerationId() {
-        UUID uuid = UUID.randomUUID();
-        // Use most significant bits and ensure it's within the integer range
-        return (int) (uuid.getMostSignificantBits() & 0xFFFFFFFFL);
-    }
+
 }

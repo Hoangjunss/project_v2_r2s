@@ -40,6 +40,7 @@ public class CartDetailServiceImpl implements CartDetailService {
         if(product.getUnitStock()<quantity){
             throw  new CustomException(Error.PRODUCT_UNABLE_TO_STOCK);
         }
+
         CartDetail cartDetail=CartDetail.builder()
                 .id(getGenerationId())
                 .cart(cart).product(product)
@@ -47,6 +48,7 @@ public class CartDetailServiceImpl implements CartDetailService {
                 .quantity(quantity)
                 .totalPrice(product.getUnitPrice()*quantity)
                 .build();
+
        return cartDetailRepository.save(cartDetail);
     }
 
@@ -54,6 +56,7 @@ public class CartDetailServiceImpl implements CartDetailService {
     public void updateCartDetail(CartDetail cartDetail,Integer quantity) {
       cartDetail.setQuantity(cartDetail.getQuantity()+quantity);
       cartDetail.setTotalPrice(cartDetail.getUnitPrice()*cartDetail.getQuantity());
+
       cartDetailRepository.save(cartDetail);
     }
 

@@ -8,5 +8,5 @@ public interface CartService {
     Cart addCart(Integer idProduct,Integer quatity);
     Cart deleteCartDetail(Integer id);
     Cart clearCart();
-    void createCart(User user);
+    Cart createCart(User user);
 }

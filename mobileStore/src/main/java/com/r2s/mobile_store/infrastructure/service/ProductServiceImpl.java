@@ -21,12 +21,15 @@ public class ProductServiceImpl implements ProductService {
         if(product.getProductName() == null){
             throw new CustomException(Error.PRODUCT_INVALID_NAME);
         }
+
         if(product.getUnitPrice() == null){
             throw new CustomException(Error.PRODUCT_INVALID_PRICE);
         }
+
        if(product.getDescription()==null){
           throw new CustomException(Error.PRODUCT_INVALID_DESCRIPTION);
        }
+
         if(product.getUnitStock()==null){
           throw new CustomException(Error.PRODUCT_INVALID_STOCK);
         }

@@ -5,8 +5,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface RoleService {
-    Role createRole(Role role);
-    Role UpdateRole(Role role);
+
     Role findById(Integer id);
     Role findByName(String name);
 }
