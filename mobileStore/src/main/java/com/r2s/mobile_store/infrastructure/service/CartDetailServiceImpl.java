@@ -37,6 +37,9 @@ public class CartDetailServiceImpl implements CartDetailService {
 
     @Override
     public CartDetail addCartDetail(Product product,Integer quantity,Cart cart) {
+        if(product.getUnitStock()<quantity){
+            throw  new CustomException(Error.PRODUCT_UNABLE_TO_STOCK);
+        }
         CartDetail cartDetail=CartDetail.builder()
                 .id(getGenerationId())
                 .cart(cart).product(product)

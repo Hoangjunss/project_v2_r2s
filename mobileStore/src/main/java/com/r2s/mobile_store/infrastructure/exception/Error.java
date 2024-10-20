@@ -36,6 +36,7 @@ public enum Error {
     PRODUCT_INVALID_PRICE(2007, "Invalid price", HttpStatus.BAD_REQUEST),
     PRODUCT_INVALID_STOCK(2008, "Invalid stock", HttpStatus.BAD_REQUEST),
     PRODUCT_INVALID_DESCRIPTION(2009, "Invalid description", HttpStatus.BAD_REQUEST),
+    PRODUCT_UNABLE_TO_STOCK(2008, "Invalid stock", HttpStatus.INTERNAL_SERVER_ERROR),
     //Order error codes
     //Category error codes
     CATEGORY_NOT_FOUND(3001, "Category not found", HttpStatus.NOT_FOUND),
