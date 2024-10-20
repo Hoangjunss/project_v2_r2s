@@ -58,6 +58,20 @@ public enum Error {
     CONDITION_UNABLE_TO_UPDATE(5004, "Unable to update Condition", HttpStatus.INTERNAL_SERVER_ERROR),
     CONDITION_UNABLE_TO_DELETE(5005, "Unable to delete Condition", HttpStatus.INTERNAL_SERVER_ERROR),
     CONDITION_INVALID_NAME(5006, "Invalid name", HttpStatus.BAD_REQUEST),
+
+    CART_NOT_FOUND(6001, "Cart not found", HttpStatus.NOT_FOUND),
+    CART_ALREADY_EXISTS(6002, "Cart already exists", HttpStatus.CONFLICT),
+    CART_UNABLE_TO_SAVE(6003, "Unable to save Cart", HttpStatus.INTERNAL_SERVER_ERROR),
+    CART_UNABLE_TO_UPDATE(6004, "Unable to update Cart", HttpStatus.INTERNAL_SERVER_ERROR),
+    CART_UNABLE_TO_DELETE(6005, "Unable to delete Cart", HttpStatus.INTERNAL_SERVER_ERROR),
+
+
+    CARTDETAIL_NOT_FOUND(5001, "Cart detail not found", HttpStatus.NOT_FOUND),
+    CARTDETAIL_ALREADY_EXISTS(5002, "Cart detail already exists", HttpStatus.CONFLICT),
+    CARTDETAIL_UNABLE_TO_SAVE(5003, "Unable to save Cart detail", HttpStatus.INTERNAL_SERVER_ERROR),
+    CARTDETAIL_UNABLE_TO_UPDATE(5004, "Unable to update Cart detail", HttpStatus.INTERNAL_SERVER_ERROR),
+    CARTDETAIL_UNABLE_TO_DELETE(5005, "Unable to delete Cart detail", HttpStatus.INTERNAL_SERVER_ERROR),
+    CARTDETAIL_INVALID_QUANTITY(5006, "Invalid quantity", HttpStatus.BAD_REQUEST),
     //Jwt token-related error
     JWT_INVALID(1101, "Invalid JWT token", HttpStatus.UNAUTHORIZED),
     JWT_EXPIRED(1102, "JWT token expired", HttpStatus.UNAUTHORIZED),

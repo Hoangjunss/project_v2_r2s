@@ -1,8 +1,10 @@
 package com.r2s.mobile_store.infrastructure.service;
 
 
+import com.r2s.mobile_store.domain.models.Cart;
 import com.r2s.mobile_store.domain.models.User;
 import com.r2s.mobile_store.domain.repository.UserRepository;
+import com.r2s.mobile_store.domain.service.CartService;
 import com.r2s.mobile_store.domain.service.UserService;
 import com.r2s.mobile_store.infrastructure.exception.CustomException;
 import com.r2s.mobile_store.infrastructure.exception.CustomJwtException;
@@ -25,6 +27,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private ModelMapper modelMapper;
     @Autowired
+    private CartService cartService;
+    @Autowired
     private OurUserDetailsService ourUserDetailsService;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -39,6 +43,8 @@ public class UserServiceImpl implements UserService {
 
 
             user= userRepository.save(user);
+
+            cartService.createCart(user);
 
         return user;
     }
