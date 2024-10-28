@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @Entity
 
-public class Cart {
+public class Order {
     @Id
     private  Integer id;
     @OneToOne
@@ -26,7 +26,7 @@ public class Cart {
     @Builder.Default
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonManagedReference
-    private List<CartDetail> cartDetails = new ArrayList<>();
+    private List<OrderDetail> orderDetails = new ArrayList<>();
     private Integer quantity;
     private Double totalPrice;
 

@@ -1,20 +1,10 @@
 package com.r2s.mobile_store.presentation.controller;
 
-import com.r2s.mobile_store.application.dto.cart.CartDTO;
-import com.r2s.mobile_store.application.dto.product.ProductCreateDTO;
-import com.r2s.mobile_store.application.dto.product.ProductDto;
+import com.r2s.mobile_store.application.dto.order.CartDTO;
 import com.r2s.mobile_store.application.service.CartApplicationService;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
 
 @RequestMapping("/cart")
 @RestController
