@@ -1,4 +1,4 @@
-package com.r2s.mobile_store.application.dto.cart;
+package com.r2s.mobile_store.application.dto.order;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CartDetailDTO {
-    private Integer id;
-    private String productName;
+public class OrderDetailCreateDTO {
+
+    private Integer idProduct;
     private Integer quantity;
     private Double unitPrice;
     private Double totalPrice;

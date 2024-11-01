@@ -36,7 +36,12 @@ public enum Error {
     PRODUCT_INVALID_PRICE(2007, "Invalid price", HttpStatus.BAD_REQUEST),
     PRODUCT_INVALID_STOCK(2008, "Invalid stock", HttpStatus.BAD_REQUEST),
     PRODUCT_INVALID_DESCRIPTION(2009, "Invalid description", HttpStatus.BAD_REQUEST),
-    PRODUCT_UNABLE_TO_STOCK(2008, "Invalid stock", HttpStatus.INTERNAL_SERVER_ERROR),
+    PRODUCT_UNABLE_TO_STOCK(2010, "Invalid stock", HttpStatus.INTERNAL_SERVER_ERROR),
+    PRODUCT_PRICE_TOO_LOW(2011, "Unit price must be greater than or equal to 0", HttpStatus.BAD_REQUEST),
+    PRODUCT_PRICE_TOO_HIGH(2012, "Unit price must be less than or equal to 1000000000", HttpStatus.BAD_REQUEST),
+    PRODUCT_STOCK_TOO_LOW(2013, "Unit stock must be greater than or equal to 0", HttpStatus.BAD_REQUEST),
+    PRODUCT_STOCK_TOO_HIGH(2014, "Unit stock must be less than or equal to 1000", HttpStatus.BAD_REQUEST),
+    PRODUCT_NAME_TOO_LONG(2015, "Product name must be less than or equal to 255 characters", HttpStatus.BAD_REQUEST),
     //Order error codes
     //Category error codes
     CATEGORY_NOT_FOUND(3001, "Category not found", HttpStatus.NOT_FOUND),

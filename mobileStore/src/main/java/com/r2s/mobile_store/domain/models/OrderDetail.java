@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Entity
 
-public class CartDetail {
+public class OrderDetail {
     @Id
     private Integer id;
     @ManyToOne
@@ -20,7 +20,7 @@ public class CartDetail {
     private Product product;
     @ManyToOne
     @JoinColumn
-    private Cart cart;
+    private Order order;
     private Integer quantity;
     private Double unitPrice;
     private Double totalPrice;

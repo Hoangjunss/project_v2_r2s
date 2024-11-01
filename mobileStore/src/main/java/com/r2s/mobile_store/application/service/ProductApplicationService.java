@@ -38,8 +38,8 @@ public class ProductApplicationService {
 
         return productMapper.conventProductToProductDto(productService.addProduct(product));
     }
-    public Page<ProductDto> getList(Pageable pageable) {
-        return productService.getList(pageable).map(product -> productMapper.conventProductToProductDto(product));
+    public Page<ProductDto> getList(String search,Pageable pageable) {
+        return productService.getList(search,pageable).map(product -> productMapper.conventProductToProductDto(product));
     }
     public ProductDto findById(Integer id){
         return productMapper.conventProductToProductDto(productService.findById(id));

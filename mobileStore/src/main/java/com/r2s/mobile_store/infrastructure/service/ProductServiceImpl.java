@@ -10,6 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import com.r2s.mobile_store.infrastructure.exception.Error;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -18,17 +21,37 @@ public class ProductServiceImpl implements ProductService {
     private ProductRepository productRepository;
     @Override
     public Product addProduct(Product product) {
-        if(product.getProductName() == null){
-            throw new CustomException(Error.PRODUCT_INVALID_NAME);
+        List<Error> errors = new ArrayList<>();
+
+        // Validate product name
+        if (product.getProductName() == null || product.getProductName().isEmpty()) {
+            errors.add(Error.PRODUCT_INVALID_NAME);
+        } else if (product.getProductName().length() > 255) {
+            errors.add(Error.PRODUCT_NAME_TOO_LONG);
         }
-        if(product.getUnitPrice() == null){
-            throw new CustomException(Error.PRODUCT_INVALID_PRICE);
+
+        // Validate unit price
+        if (product.getUnitPrice() == null) {
+            errors.add(Error.PRODUCT_INVALID_PRICE);
+        } else if (product.getUnitPrice() < 0) {
+            errors.add(Error.PRODUCT_PRICE_TOO_LOW);
         }
-       if(product.getDescription()==null){
-          throw new CustomException(Error.PRODUCT_INVALID_DESCRIPTION);
-       }
-        if(product.getUnitStock()==null){
-          throw new CustomException(Error.PRODUCT_INVALID_STOCK);
+
+        // Validate description
+        if (product.getDescription() == null || product.getDescription().isEmpty()) {
+            errors.add(Error.PRODUCT_INVALID_DESCRIPTION);
+        }
+
+        // Validate unit stock
+        if (product.getUnitStock() == null) {
+            errors.add(Error.PRODUCT_INVALID_STOCK);
+        } else if (product.getUnitStock() < 0) {
+            errors.add(Error.PRODUCT_STOCK_TOO_LOW);
+        }
+
+        // Throw exception if errors exist
+        if (!errors.isEmpty()) {
+            throw new CustomException(errors);
         }
 
         product.setId(getGenerationId());
@@ -36,8 +59,16 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public Page<Product> getList(Pageable pageable) {
-        return  productRepository.findAll(pageable);
+    public Page<Product> getList(String search, Pageable pageable) {
+        Page<Product> products;
+
+        if (search != null && !search.trim().isEmpty()) {
+            products = productRepository.findByProductNameContainingIgnoreCase(search, pageable);
+        } else {
+            products = productRepository.findAll(pageable);
+        }
+
+        return products;
     }
 
     @Override

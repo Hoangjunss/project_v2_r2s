@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,17 +16,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-
-public class Cart {
+@Table(name = "orders")
+public class Order {
     @Id
     private  Integer id;
-    @OneToOne
+    @ManyToOne
     @JoinColumn
     private User user;
-    @Builder.Default
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JsonManagedReference
-    private List<CartDetail> cartDetails = new ArrayList<>();
     private Integer quantity;
     private Double totalPrice;
 
