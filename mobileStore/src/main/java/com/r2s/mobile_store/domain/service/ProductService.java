@@ -6,6 +6,6 @@ import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
     Product addProduct(Product product);
-    Page<Product> getList(Pageable pageable);
+    Page<Product> getList(String search,Pageable pageable);
     Product findById(Integer id);
 }

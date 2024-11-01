@@ -6,6 +6,7 @@ import com.r2s.mobile_store.domain.models.OrderDetail;
 import com.r2s.mobile_store.domain.models.Product;
 
 import com.r2s.mobile_store.domain.repository.OrderDetailRepository;
+import com.r2s.mobile_store.domain.repository.ProductRepository;
 import com.r2s.mobile_store.domain.service.OrderDetailService;
 import com.r2s.mobile_store.infrastructure.exception.CustomException;
 import com.r2s.mobile_store.infrastructure.exception.Error;
@@ -20,49 +21,26 @@ import java.util.UUID;
 public class OrderDetailServiceImpl implements OrderDetailService {
     @Autowired
     private OrderDetailRepository orderDetailRepository;
-    @Override
-    public OrderDetail findById(Integer integer) {
-        return orderDetailRepository.findById(integer)
-                .orElseThrow(()-> new CustomException(Error.CARTDETAIL_NOT_FOUND)) ;
-    }
+    @Autowired
+    private ProductRepository productRepository;
+
 
     @Override
-    public void deleteOrderDetail(Integer id) {
-        OrderDetail orderDetail = findById(id);
-        orderDetailRepository.delete(orderDetail);
-    }
-
-    @Override
-    public void deleteAllOrderDetail(List<OrderDetail> orderDetails) {
-        orderDetailRepository.deleteAll(orderDetails);
-    }
-
-    @Override
-    public OrderDetail addOrderDetail(Product product, Integer quantity, Order order) {
-        if(product.getUnitStock()<quantity){
+    public OrderDetail addOrderDetail(OrderDetail orderDetail) {
+        Product product = productRepository.findById(orderDetail.getProduct().getId()).orElseThrow(()->new CustomException(Error.PRODUCT_NOT_FOUND));
+        if(product.getUnitStock() < orderDetail.getQuantity()){
             throw  new CustomException(Error.PRODUCT_UNABLE_TO_STOCK);
         }
-        OrderDetail cartDetail=OrderDetail.builder()
-                .id(getGenerationId())
-                .order(order).product(product)
-                .unitPrice(product.getUnitPrice())
-                .quantity(quantity)
-                .totalPrice(product.getUnitPrice()*quantity)
-                .build();
-       return orderDetailRepository.save(cartDetail);
+        product.setUnitStock(product.getUnitStock() - orderDetail.getQuantity());
+        productRepository.save(product);
+
+        orderDetail.setId(getGenerationId());
+        orderDetail.setUnitPrice(product.getUnitPrice());
+        orderDetail.setTotalPrice(product.getUnitPrice()*orderDetail.getQuantity());
+       return orderDetailRepository.save(orderDetail);
     }
 
-    @Override
-    public void updateOrderDetail(OrderDetail orderDetail,Integer quantity) {
-        orderDetail.setQuantity(orderDetail.getQuantity()+quantity);
-        orderDetail.setTotalPrice(orderDetail.getUnitPrice()*orderDetail.getQuantity());
-        orderDetailRepository.save(orderDetail);
-    }
 
-    @Override
-    public Optional<OrderDetail> findByProductAndOrder(Product product, Order order) {
-        return orderDetailRepository.findByProductAndOrder(product,order);
-    }
     public Integer getGenerationId() {
         UUID uuid = UUID.randomUUID();
         return (int) (uuid.getMostSignificantBits() & 0xFFFFFFFFL);

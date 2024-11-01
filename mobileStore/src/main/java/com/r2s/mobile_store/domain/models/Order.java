@@ -16,17 +16,13 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-
+@Table(name = "orders")
 public class Order {
     @Id
     private  Integer id;
-    @OneToOne
+    @ManyToOne
     @JoinColumn
     private User user;
-    @Builder.Default
-    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @JsonManagedReference
-    private List<OrderDetail> orderDetails = new ArrayList<>();
     private Integer quantity;
     private Double totalPrice;
 

@@ -9,11 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface OrderDetailService {
-    OrderDetail findById(Integer integer);
-    void deleteOrderDetail(Integer id);
-    void deleteAllOrderDetail (List<OrderDetail> orderDetails);
-    OrderDetail addOrderDetail(Product product, Integer quantity, Order order);
-    void updateOrderDetail(OrderDetail orderDetail,Integer quantity);
-    Optional<OrderDetail> findByProductAndOrder(Product product, Order order);
+
+    OrderDetail addOrderDetail(OrderDetail orderDetail);
 
 }
