@@ -22,9 +22,9 @@ public class OrderMapper {
     private OrderDetailMapper orderDetailMapper;
     @Autowired
     private OrderDetailRepository orderDetailRepository;
-    public OrderDTO conventOrderToOrderDTO(Order order){
+    public OrderDTO conventOrderToOrderDTO(Order order ,List<OrderDetail> orderDetailList){
         OrderDTO orderDTO=modelMapper.map(order, OrderDTO.class);
-        List<OrderDetail> orderDetailList= orderDetailRepository.findAllByOrder(order);
+
         List<OrderDetailDTO> orderDetails =orderDetailList
                 .stream()
                 .map(orderDetail -> orderDetailMapper.conventOrderDetailToOrder(orderDetail))

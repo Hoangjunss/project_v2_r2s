@@ -9,11 +9,17 @@ import com.r2s.mobile_store.domain.service.RoleService;
 import com.r2s.mobile_store.domain.service.UserService;
 import com.r2s.mobile_store.domain.models.Role;
 import com.r2s.mobile_store.domain.models.User;
+import com.r2s.mobile_store.infrastructure.exception.CustomException;
+import com.r2s.mobile_store.infrastructure.exception.CustomJwtException;
+import com.r2s.mobile_store.infrastructure.exception.Error;
 import com.r2s.mobile_store.infrastructure.security.JwtTokenUtil;
 import com.r2s.mobile_store.presentation.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class UserApplicationService  {
@@ -29,6 +35,30 @@ public class UserApplicationService  {
    private RoleService roleService;
 
     public UserDTO registration(UserRegistrationDTO createUserRequest) {
+        List<Error> errors = new ArrayList<>();
+        if (createUserRequest.getUsername() == null || createUserRequest.getUsername().isEmpty()) {
+            errors.add(Error.USERNAME_REQUIRED);
+        } else if (createUserRequest.getUsername().length() > 25) {
+            errors.add(Error.USERNAME_TOO_LONG);
+        }
+
+        if (createUserRequest.getEmail() == null || createUserRequest.getEmail().isEmpty()) {
+            errors.add(Error.EMAIL_REQUIRED);
+        } else if (!createUserRequest.getEmail().matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            errors.add(Error.INVALID_EMAIL_FORMAT);
+        }
+
+        if (createUserRequest.getPassword() == null || createUserRequest.getPassword().isEmpty()) {
+            errors.add(Error.PASSWORD_REQUIRED);
+        } else if (createUserRequest.getPassword().length() < 6) {
+            errors.add(Error.PASSWORD_TOO_SHORT);
+        }
+
+        // Throw exception if errors exist
+        if (!errors.isEmpty()) {
+            throw new CustomException(errors);
+        }
+
         Role role=roleService.findByName(createUserRequest.getRole());
 
         User user=userMapper.convertUserRegistrationDTOToUser(createUserRequest,role);
@@ -39,6 +69,18 @@ public class UserApplicationService  {
     }
 
     public AuthenticationDTO signIn(UserLoginDTO signinRequest) {
+        List<Error> errors = new ArrayList<>();
+
+        if (signinRequest.getName() == null || signinRequest.getName().isEmpty()) {
+           errors.add(Error.USERNAME_REQUIRED);
+        }
+
+        if (signinRequest.getPassword() == null || signinRequest.getPassword().isEmpty()) {
+            errors.add(Error.PASSWORD_REQUIRED);
+        }
+        if (!errors.isEmpty()) {
+            throw new CustomException(errors);
+        }
         User user=userMapper.convertAuthenticationToUser(signinRequest);
 
         UserDetails userDetails=userService.signIn(user);

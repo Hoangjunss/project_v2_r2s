@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -38,14 +39,14 @@ class OrderDetailServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Tạo đối tượng Product mẫu
+        // Set up a sample Product
         product = new Product();
         product.setId(UUID.randomUUID().variant());
         product.setProductName("Sample Product");
         product.setUnitStock(10);
         product.setUnitPrice(100.0);
 
-        // Tạo đối tượng OrderDetail mẫu
+        // Set up a sample OrderDetail
         orderDetail = new OrderDetail();
         orderDetail.setProduct(product);
         orderDetail.setQuantity(5);
@@ -53,17 +54,17 @@ class OrderDetailServiceTest {
 
     @Test
     void addOrderDetail_shouldSaveOrderDetailWhenProductExistsAndInStock() {
-        // Giả lập khi sản phẩm tồn tại trong DB và có đủ số lượng tồn kho
+        // Mock product exists in DB and has sufficient stock
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
         when(orderDetailRepository.save(any(OrderDetail.class))).thenReturn(orderDetail);
 
         OrderDetail result = orderDetailService.addOrderDetail(orderDetail);
 
-        // Tính toán tổng giá và số lượng tồn kho sau khi cập nhật
+        // Calculate expected total price and remaining stock
         double expectedTotalPrice = product.getUnitPrice() * orderDetail.getQuantity();
-        int expectedStock = product.getUnitStock() - orderDetail.getQuantity(); // Tính tồn kho mong đợi
+        int expectedStock = product.getUnitStock() - orderDetail.getQuantity();
 
-        // Kiểm tra kết quả
+        // Verify results
         assertNotNull(result);
         assertEquals(expectedTotalPrice, result.getTotalPrice());
         assertEquals(product.getUnitPrice(), result.getUnitPrice());
@@ -72,28 +73,26 @@ class OrderDetailServiceTest {
         verify(orderDetailRepository, times(1)).save(orderDetail);
     }
 
-
     @Test
     void addOrderDetail_shouldThrowExceptionWhenProductNotFound() {
-        // Giả lập trường hợp sản phẩm không tồn tại
+        // Mock product not found in DB
         when(productRepository.findById(product.getId())).thenReturn(Optional.empty());
 
         CustomException exception = assertThrows(CustomException.class, () -> orderDetailService.addOrderDetail(orderDetail));
 
-        assertEquals(Error.PRODUCT_NOT_FOUND, exception.getError());
+        assertEquals(singletonList(Error.PRODUCT_NOT_FOUND), exception.getErrors());
         verify(orderDetailRepository, never()).save(any(OrderDetail.class));
     }
 
     @Test
     void addOrderDetail_shouldThrowExceptionWhenStockInsufficient() {
-        // Giả lập trường hợp số lượng tồn kho không đủ
+        // Mock insufficient stock
         product.setUnitStock(3);
         when(productRepository.findById(product.getId())).thenReturn(Optional.of(product));
 
         CustomException exception = assertThrows(CustomException.class, () -> orderDetailService.addOrderDetail(orderDetail));
 
-        assertEquals(Error.PRODUCT_UNABLE_TO_STOCK, exception.getError());
+        assertEquals(singletonList(Error.PRODUCT_UNABLE_TO_STOCK), exception.getErrors());
         verify(orderDetailRepository, never()).save(any(OrderDetail.class));
     }
 }
-

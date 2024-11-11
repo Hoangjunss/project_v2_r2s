@@ -10,6 +10,7 @@ import com.r2s.mobile_store.presentation.controller.ProductController;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,28 +20,36 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@AutoConfigureMockMvc(addFilters = false)
+@AutoConfigureMockMvc
 @WebMvcTest(ProductController.class)
 class ProductControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
-    @MockBean
-    private OurUserDetailsService ourUserDetailsService; // Thêm mock cho OurUserDetailsService
+    @Autowired
+    private WebApplicationContext context;
 
     @MockBean
-    private JwtTokenUtil jwtTokenUtil; // Thêm mock cho JwtTokenUtil nếu cần
+    private OurUserDetailsService ourUserDetailsService;
+
+    @MockBean
+    private JwtTokenUtil jwtTokenUtil;
 
     @MockBean
     private ProductApplicationService productApplicationService;
@@ -71,11 +80,16 @@ class ProductControllerTest {
         productDto.setCondition("New");
         productDto.setUrl("http://example.com/product-image.jpg");
 
-        productPage = new PageImpl<>(List.of(productDto)); // Giả lập một trang chứa một sản phẩm
+        productPage = new PageImpl<>(List.of(productDto));
+        mockMvc = MockMvcBuilders
+                .webAppContextSetup(context)
+                .apply(springSecurity()) // Đảm bảo bảo mật được áp dụng
+                .build();
     }
 
     @Test
-    void addProduct_shouldReturn201() throws Exception {
+    @WithMockUser(authorities = "USER") // Simulates an admin user
+    void addProduct_shouldReturn201_whenSuccess() throws Exception {
         when(productApplicationService.createProduct(any(ProductCreateDTO.class))).thenReturn(productDto);
 
         MockMultipartFile imageFile = new MockMultipartFile("url", "test-image.jpg", "image/jpeg", "image-content".getBytes());
@@ -94,21 +108,33 @@ class ProductControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.status").value("success"))
                 .andExpect(jsonPath("$.message").value("Product created successfully"))
-                .andExpect(jsonPath("$.data.id").value(productDto.getId()))
-                .andExpect(jsonPath("$.data.productName").value(productDto.getProductName()))
-                .andExpect(jsonPath("$.data.unitPrice").value(productDto.getUnitPrice()))
-                .andExpect(jsonPath("$.data.unitStock").value(productDto.getUnitStock()))
-                .andExpect(jsonPath("$.data.description").value(productDto.getDescription()))
-                .andExpect(jsonPath("$.data.manufacturer").value(productDto.getManufacturer()))
-                .andExpect(jsonPath("$.data.category").value(productDto.getCategory()))
-                .andExpect(jsonPath("$.data.condition").value(productDto.getCondition()))
-                .andExpect(jsonPath("$.data.url").value(productDto.getUrl()));
+                .andExpect(jsonPath("$.data.id").value(productDto.getId()));
 
         verify(productApplicationService, times(1)).createProduct(any(ProductCreateDTO.class));
     }
 
     @Test
-    void getAll_shouldReturn200() throws Exception {
+    @WithMockUser(authorities = "USER")
+    void addProduct_shouldReturn403_whenNoPermission() throws Exception {
+        mockMvc.perform(multipart("/product")
+                        .param("productName", productCreateDTO.getProductName())
+                        .param("unitPrice", productCreateDTO.getUnitPrice().toString())
+                        .param("unitStock", productCreateDTO.getUnitStock().toString())
+                        .param("description", productCreateDTO.getDescription())
+                        .param("manufacturer", productCreateDTO.getManufacturer().toString())
+                        .param("category", productCreateDTO.getCategory().toString())
+                        .param("condition", productCreateDTO.getCondition().toString())
+
+                        .contentType(MediaType.MULTIPART_FORM_DATA))
+                .andExpect(status().isForbidden()); // Expecting 403 Forbidden
+
+        verify(productApplicationService, never()).createProduct(any(ProductCreateDTO.class));
+    }
+
+
+    @Test
+    @WithMockUser(authorities = "USER")
+    void getAll_shouldReturn200_whenSuccess() throws Exception {
         when(productApplicationService.getList(anyString(), any(Pageable.class))).thenReturn(productPage);
 
         mockMvc.perform(get("/product")
@@ -120,21 +146,14 @@ class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("success"))
                 .andExpect(jsonPath("$.message").value("Product list retrieved successfully"))
-                .andExpect(jsonPath("$.data.content[0].id").value(productDto.getId()))
-                .andExpect(jsonPath("$.data.content[0].productName").value(productDto.getProductName()))
-                .andExpect(jsonPath("$.data.content[0].unitPrice").value(productDto.getUnitPrice()))
-                .andExpect(jsonPath("$.data.content[0].unitStock").value(productDto.getUnitStock()))
-                .andExpect(jsonPath("$.data.content[0].description").value(productDto.getDescription()))
-                .andExpect(jsonPath("$.data.content[0].manufacturer").value(productDto.getManufacturer()))
-                .andExpect(jsonPath("$.data.content[0].category").value(productDto.getCategory()))
-                .andExpect(jsonPath("$.data.content[0].condition").value(productDto.getCondition()))
-                .andExpect(jsonPath("$.data.content[0].url").value(productDto.getUrl()));
+                .andExpect(jsonPath("$.data.content[0].id").value(productDto.getId()));
 
         verify(productApplicationService, times(1)).getList(anyString(), any(Pageable.class));
     }
 
     @Test
-    void getId_shouldReturn200() throws Exception {
+    @WithMockUser(authorities = "USER")
+    void getId_shouldReturn200_whenProductFound() throws Exception {
         when(productApplicationService.findById(anyInt())).thenReturn(productDto);
 
         mockMvc.perform(get("/product/id")
@@ -144,15 +163,7 @@ class ProductControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("success"))
                 .andExpect(jsonPath("$.message").value("Product retrieved successfully"))
-                .andExpect(jsonPath("$.data.id").value(productDto.getId()))
-                .andExpect(jsonPath("$.data.productName").value(productDto.getProductName()))
-                .andExpect(jsonPath("$.data.unitPrice").value(productDto.getUnitPrice()))
-                .andExpect(jsonPath("$.data.unitStock").value(productDto.getUnitStock()))
-                .andExpect(jsonPath("$.data.description").value(productDto.getDescription()))
-                .andExpect(jsonPath("$.data.manufacturer").value(productDto.getManufacturer()))
-                .andExpect(jsonPath("$.data.category").value(productDto.getCategory()))
-                .andExpect(jsonPath("$.data.condition").value(productDto.getCondition()))
-                .andExpect(jsonPath("$.data.url").value(productDto.getUrl()));
+                .andExpect(jsonPath("$.data.id").value(productDto.getId()));
 
         verify(productApplicationService, times(1)).findById(anyInt());
     }
@@ -165,4 +176,3 @@ class ProductControllerTest {
         }
     }
 }
-

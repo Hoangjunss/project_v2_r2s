@@ -11,5 +11,6 @@ import java.util.Optional;
 public interface OrderDetailService {
 
     OrderDetail addOrderDetail(OrderDetail orderDetail);
+    List<OrderDetail> getOrderDetailByOrder(Order order);
 
 }

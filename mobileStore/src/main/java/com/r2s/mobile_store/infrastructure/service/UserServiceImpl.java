@@ -20,75 +20,75 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 @Service
 public class UserServiceImpl implements UserService {
+
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private PasswordEncoder passwordEncoder;
+
     @Autowired
     private ModelMapper modelMapper;
 
     @Autowired
     private OurUserDetailsService ourUserDetailsService;
+
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
+
     @Override
     public User registration(User user) {
-        if(usernameExists(user.getUsername())){
+
+
+        if (usernameExists(user.getUsername())) {
             throw new CustomException(Error.USER_ALREADY_EXISTS);
         }
+
+
+
         user.setId(getGenerationId());
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-
-
-            user= userRepository.save(user);
-
-        return user;
+        return userRepository.save(user);
     }
+
     @Override
     public User signIn(User user) {
+
+
         String name = user.getUsername().trim().toLowerCase();
 
-        // Kiểm tra xem email đã tồn tại chưa
         if (!usernameExists(name)) {
             throw new CustomJwtException(Error.USER_NOT_FOUND);
         }
 
-
-
         User userFind = userRepository.findByUsername(name).orElseThrow();
         if (!passwordEncoder.matches(user.getPassword(), userFind.getPassword())) {
-            throw new CustomJwtException(Error.NOT_FOUND);
+            throw new CustomJwtException(Error.INVALID_CREDENTIALS);
         }
 
         return userFind;
-
     }
 
     @Override
-
     public UserDetails generateRefreshToken(String token) {
+        if (token == null || token.isEmpty()) {
+            throw new CustomJwtException(Error.TOKEN_REQUIRED);
+        }
 
-
-        // 2. Lấy thông tin từ token cũ
         String username = jwtTokenUtil.extractUsernameToken(token);
+        if (username == null || !usernameExists(username)) {
+            throw new CustomJwtException(Error.USER_NOT_FOUND_IN_TOKEN);
+        }
 
-        // 3. Tạo refresh token mới
-        UserDetails userDetails= ourUserDetailsService.loadUserByUsername(username);
-
-        return  userDetails;
+        return ourUserDetailsService.loadUserByUsername(username);
     }
-
-
-
-
 
     private boolean usernameExists(String username) {
         return userRepository.findByUsername(username).isPresent();
     }
+
     public Integer getGenerationId() {
         UUID uuid = UUID.randomUUID();
-        // Use most significant bits and ensure it's within the integer range
         return (int) (uuid.getMostSignificantBits() & 0xFFFFFFFFL);
     }
 }

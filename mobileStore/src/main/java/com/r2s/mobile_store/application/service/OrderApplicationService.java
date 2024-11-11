@@ -3,8 +3,10 @@ package com.r2s.mobile_store.application.service;
 
 import com.r2s.mobile_store.application.dto.order.OrderCreateDTO;
 import com.r2s.mobile_store.application.dto.order.OrderDTO;
+import com.r2s.mobile_store.application.dto.order.OrderDetailDTO;
 import com.r2s.mobile_store.domain.models.Order;
 import com.r2s.mobile_store.domain.models.OrderDetail;
+import com.r2s.mobile_store.domain.service.OrderDetailService;
 import com.r2s.mobile_store.domain.service.OrderService;
 
 import com.r2s.mobile_store.presentation.mapper.OrderDetailMapper;
@@ -25,11 +27,24 @@ public class OrderApplicationService {
     private OrderMapper orderMapper;
     @Autowired
     private OrderDetailMapper orderDetailMapper;
+    @Autowired
+    private OrderDetailService orderDetailService;
 
-    public OrderDTO addOrder(OrderCreateDTO orderDTO) {
-        Order order=orderMapper.convertOrderDTOToOrder(orderDTO);
-        List<OrderDetail> orderDetails=orderDTO.getOrderDetailCreateDTOList().stream().map(orderDetailCreateDTO -> orderDetailMapper.conventOrderDetailDTOToOrderDetail(orderDetailCreateDTO)).collect(Collectors.toList());
-        return orderMapper.conventOrderToOrderDTO(orderService.addOrder(order,orderDetails));
+    public OrderDTO addOrder() {
+        Order order=orderService.addOrder();
+        List<OrderDetail> orderDetails=orderDetailService.getOrderDetailByOrder(order);
+        return orderMapper.conventOrderToOrderDTO(order,orderDetails);
+    }
+    public List<OrderDTO> getAll(){
+        return orderService.getOrder().stream().map(order -> {
+            List<OrderDetail> orderDetails=orderDetailService.getOrderDetailByOrder(order);
+            return orderMapper.conventOrderToOrderDTO(order,orderDetails);
+        }).collect(Collectors.toList());
+    }
+    public OrderDTO findById(Integer id){
+        Order order=orderService.findById(id);
+        List<OrderDetail> orderDetails=orderDetailService.getOrderDetailByOrder(order);
+        return orderMapper.conventOrderToOrderDTO(order,orderDetails);
     }
 
 

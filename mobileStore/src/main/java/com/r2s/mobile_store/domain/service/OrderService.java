@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface OrderService {
 
-    Order addOrder(Order order, List<OrderDetail> orderDetails);
+    Order addOrder();
+    List<Order> getOrder();
+    Order findById(Integer id);
 
 }

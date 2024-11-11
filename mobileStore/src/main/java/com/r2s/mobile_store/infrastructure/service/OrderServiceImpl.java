@@ -1,18 +1,14 @@
 package com.r2s.mobile_store.infrastructure.service;
 
 
-import com.r2s.mobile_store.domain.models.Order;
-import com.r2s.mobile_store.domain.models.OrderDetail;
-import com.r2s.mobile_store.domain.models.Product;
-import com.r2s.mobile_store.domain.models.User;
+import com.r2s.mobile_store.domain.models.*;
 
 import com.r2s.mobile_store.domain.repository.OrderRepository;
 
-import com.r2s.mobile_store.domain.service.OrderDetailService;
-import com.r2s.mobile_store.domain.service.OrderService;
-import com.r2s.mobile_store.domain.service.ProductService;
+import com.r2s.mobile_store.domain.service.*;
 import com.r2s.mobile_store.infrastructure.exception.CustomException;
 import com.r2s.mobile_store.infrastructure.exception.Error;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -31,48 +27,69 @@ public class OrderServiceImpl implements OrderService {
     private OrderDetailService orderDetailService;
     @Autowired
     private ProductService productService;
+    @Autowired
+    private CartService cartService;
+    @Autowired
+    private CartDetailService cartDetailService;
 
 
-
+@Transactional
     @Override
-    public Order addOrder(Order order, List<OrderDetail> orderDetails) {
+    public Order addOrder() {
         // Lấy thông tin người dùng hiện tại
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getPrincipal() == null || !(authentication.getPrincipal() instanceof User)) {
+            throw new CustomException(Error.USER_NOT_FOUND);
+        }
         User currentUser = (User) authentication.getPrincipal();
 
-        // Gán người dùng cho Order và tạo ID cho Order
+        // Lấy giỏ hàng của người dùng
+        Cart cart = cartService.findByUser();
+        if (cart == null) {
+            throw new CustomException(Error.CART_NOT_FOUND); // Xử lý khi giỏ hàng không tồn tại
+        }
+
+        // Tạo đối tượng Order và thiết lập thông tin cơ bản
+        Order order = new Order();
         order.setUser(currentUser);
         order.setId(getGenerationId());
+        order.setQuantity(cart.getQuantity());
 
-        // Lưu Order trước khi gán vào OrderDetail
-        orderRepository.save(order);
+        // Lấy danh sách CartDetail một lần duy nhất
+        List<CartDetail> cartDetails = cartDetailService.findByCart(cart.getId());
 
-        // Sử dụng Stream API để xử lý OrderDetail
-        orderDetails.forEach(orderDetail -> {
-            orderDetail.setOrder(order); // Gán Order cho OrderDetail
-            orderDetailService.addOrderDetail(orderDetail); // Lưu để unitPrice được cập nhật từ sản phẩm
-            log.info("orderDetail after save: {}", orderDetail);
-        });
-
-        // Tính tổng tiền và tổng số lượng sau khi tất cả OrderDetail đã được lưu
-        double totalAmount = orderDetails.stream()
-                .mapToDouble(od -> od.getUnitPrice() * od.getQuantity())
-                .sum();
-        int totalQuantity = orderDetails.stream()
-                .mapToInt(OrderDetail::getQuantity)
+        // Tính tổng giá từ danh sách CartDetail
+        double totalPrice = cartDetails.stream()
+                .mapToDouble(cartDetail -> cartDetail.getProduct().getUnitPrice() * cartDetail.getQuantity())
                 .sum();
 
-
-        order.setTotalPrice(totalAmount);
-        order.setQuantity(totalQuantity);
-
-
+        // Gán totalPrice cho Order và lưu Order trước
+        order.setTotalPrice(totalPrice);
         orderRepository.save(order);
 
-        log.info("order: {}", order);
-        log.info("orderDetails: {}", orderDetails);
+        // Tạo và lưu từng OrderDetail
+        cartDetails.stream()
+                .map(cartDetail -> OrderDetail.builder()
+                        .order(order)
+                        .product(cartDetail.getProduct())
+                        .quantity(cartDetail.getQuantity())
+                        .unitPrice(cartDetail.getProduct().getUnitPrice())
+                        .totalPrice(cartDetail.getProduct().getUnitPrice() * cartDetail.getQuantity())
+                        .build())
+                .forEach(orderDetailService::addOrderDetail);
+        cartService.clearCart();
 
         return order;
+    }
+
+    @Override
+    public List<Order> getOrder() {
+        return orderRepository.findAll();
+    }
+
+    @Override
+    public Order findById(Integer id) {
+        return orderRepository.findById(id).orElseThrow(()->new CustomException(Error.ORDER_NOT_FOUND));
     }
 
 

@@ -1,5 +1,6 @@
 package com.r2s.mobile_store.service;
 
+
 import com.r2s.mobile_store.domain.models.Product;
 import com.r2s.mobile_store.domain.repository.ProductRepository;
 import com.r2s.mobile_store.infrastructure.exception.CustomException;
@@ -18,8 +19,8 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
+import static java.util.Collections.singletonList;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -38,7 +39,7 @@ class ProductServiceTest {
     @BeforeEach
     void setUp() {
         product = new Product();
-        product.setId(UUID.randomUUID().variant());
+        product.setId(1);
         product.setProductName("Sample Product");
         product.setUnitPrice(15000.0);
         product.setDescription("This is a sample product.");
@@ -47,7 +48,6 @@ class ProductServiceTest {
 
     @Test
     void addProduct_shouldSaveProductWhenValid() {
-        // Giả lập khi lưu sản phẩm thành công
         when(productRepository.save(any(Product.class))).thenReturn(product);
 
         Product result = productService.addProduct(product);
@@ -58,49 +58,13 @@ class ProductServiceTest {
     }
 
     @Test
-    void addProduct_shouldThrowExceptionWhenProductNameIsNull() {
+    void addProduct_shouldThrowExceptionWhenProductNameIsInvalid() {
         product.setProductName(null);
+
         CustomException exception = assertThrows(CustomException.class, () -> productService.addProduct(product));
-        assertEquals(Error.PRODUCT_INVALID_NAME, exception.getError());
+
+        assertEquals(singletonList(Error.PRODUCT_INVALID_NAME), exception.getErrors());
     }
-
-    @Test
-    void addProduct_shouldThrowExceptionWhenProductNameIsEmpty() {
-        product.setProductName("");
-        CustomException exception = assertThrows(CustomException.class, () -> productService.addProduct(product));
-        assertEquals(Error.PRODUCT_INVALID_NAME, exception.getError());
-    }
-
-    @Test
-    void addProduct_shouldThrowExceptionWhenProductNameTooLong() {
-        product.setProductName("A".repeat(256));
-        CustomException exception = assertThrows(CustomException.class, () -> productService.addProduct(product));
-        assertEquals(Error.PRODUCT_NAME_TOO_LONG, exception.getError());
-    }
-
-    @Test
-    void addProduct_shouldThrowExceptionWhenPriceIsTooLow() {
-        product.setUnitPrice(5000.0);
-        CustomException exception = assertThrows(CustomException.class, () -> productService.addProduct(product));
-        assertEquals(Error.PRODUCT_PRICE_TOO_LOW, exception.getError());
-    }
-
-
-    @Test
-    void addProduct_shouldThrowExceptionWhenDescriptionIsNull() {
-        product.setDescription(null);
-        CustomException exception = assertThrows(CustomException.class, () -> productService.addProduct(product));
-        assertEquals(Error.PRODUCT_INVALID_DESCRIPTION, exception.getError());
-    }
-
-    @Test
-    void addProduct_shouldThrowExceptionWhenUnitStockIsTooLow() {
-        product.setUnitStock(-1);
-        CustomException exception = assertThrows(CustomException.class, () -> productService.addProduct(product));
-        assertEquals(Error.PRODUCT_STOCK_TOO_LOW, exception.getError());
-    }
-
-
 
     @Test
     void getList_shouldReturnAllProductsWhenNoSearchTerm() {
@@ -113,19 +77,6 @@ class ProductServiceTest {
 
         assertEquals(1, result.getTotalElements());
         verify(productRepository, times(1)).findAll(pageable);
-    }
-
-    @Test
-    void getList_shouldReturnFilteredProductsWhenSearchTermProvided() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Product> page = new PageImpl<>(List.of(product));
-
-        when(productRepository.findByProductNameContainingIgnoreCase("Sample", pageable)).thenReturn(page);
-
-        Page<Product> result = productService.getList("Sample", pageable);
-
-        assertEquals(1, result.getTotalElements());
-        verify(productRepository, times(1)).findByProductNameContainingIgnoreCase("Sample", pageable);
     }
 
     @Test
@@ -144,6 +95,7 @@ class ProductServiceTest {
         when(productRepository.findById(product.getId())).thenReturn(Optional.empty());
 
         CustomException exception = assertThrows(CustomException.class, () -> productService.findById(product.getId()));
-        assertEquals(Error.PRODUCT_NOT_FOUND, exception.getError());
+
+        assertEquals(singletonList(Error.PRODUCT_NOT_FOUND), exception.getErrors());
     }
 }

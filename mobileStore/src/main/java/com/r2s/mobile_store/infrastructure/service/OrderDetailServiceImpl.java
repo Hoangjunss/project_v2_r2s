@@ -11,8 +11,10 @@ import com.r2s.mobile_store.domain.service.OrderDetailService;
 import com.r2s.mobile_store.infrastructure.exception.CustomException;
 import com.r2s.mobile_store.infrastructure.exception.Error;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -27,17 +29,33 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
     @Override
     public OrderDetail addOrderDetail(OrderDetail orderDetail) {
-        Product product = productRepository.findById(orderDetail.getProduct().getId()).orElseThrow(()->new CustomException(Error.PRODUCT_NOT_FOUND));
-        if(product.getUnitStock() < orderDetail.getQuantity()){
-            throw  new CustomException(Error.PRODUCT_UNABLE_TO_STOCK);
+        List<Error> errors = new ArrayList<>();
+        Product product = productRepository.findById(orderDetail.getProduct().getId())
+                .orElseThrow(() -> new CustomException(List.of(Error.PRODUCT_NOT_FOUND), String.valueOf(orderDetail.getProduct().getId())));
+
+        if (product.getUnitStock() < orderDetail.getQuantity()) {
+            errors.add(Error.PRODUCT_UNABLE_TO_STOCK);
         }
+        if (orderDetail.getQuantity() <= 0) {
+            errors.add(Error.QUANTITY_LOW);
+        }
+
+        if (!errors.isEmpty()) {
+            throw new CustomException(errors, String.valueOf(product.getId())); // Pass the product ID here
+        }
+
         product.setUnitStock(product.getUnitStock() - orderDetail.getQuantity());
         productRepository.save(product);
 
         orderDetail.setId(getGenerationId());
         orderDetail.setUnitPrice(product.getUnitPrice());
-        orderDetail.setTotalPrice(product.getUnitPrice()*orderDetail.getQuantity());
-       return orderDetailRepository.save(orderDetail);
+        orderDetail.setTotalPrice(product.getUnitPrice() * orderDetail.getQuantity());
+        return orderDetailRepository.save(orderDetail);
+    }
+
+    @Override
+    public List<OrderDetail> getOrderDetailByOrder(Order order) {
+        return orderDetailRepository.findAllByOrder(order);
     }
 
 

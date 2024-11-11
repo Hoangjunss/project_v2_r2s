@@ -21,8 +21,17 @@ public enum Error {
     EMPTY_RESULT(9995, "No result found", HttpStatus.NOT_FOUND),
     NON_UNIQUE_RESULT(9994, "Non-unique result found", HttpStatus.CONFLICT),
     //User-related errors
-    USER_NOT_FOUND(1001, "User not found", HttpStatus.NOT_FOUND),
-    USER_ALREADY_EXISTS(1002, "User already exists", HttpStatus.CONFLICT),
+    USER_ALREADY_EXISTS(1001, "User already exists", HttpStatus.CONFLICT),
+    USERNAME_REQUIRED(1002, "Username is required", HttpStatus.BAD_REQUEST),
+    USERNAME_TOO_LONG(1003, "Username cannot exceed 25 characters", HttpStatus.BAD_REQUEST),
+    EMAIL_REQUIRED(1004, "Email is required", HttpStatus.BAD_REQUEST),
+    INVALID_EMAIL_FORMAT(1005, "Invalid email format", HttpStatus.BAD_REQUEST),
+    PASSWORD_REQUIRED(1006, "Password is required", HttpStatus.BAD_REQUEST),
+    PASSWORD_TOO_SHORT(1007, "Password must be at least 6 characters", HttpStatus.BAD_REQUEST),
+    USER_NOT_FOUND(1008, "User not found", HttpStatus.NOT_FOUND),
+    INVALID_CREDENTIALS(1009, "Invalid username or password", HttpStatus.UNAUTHORIZED),
+    TOKEN_REQUIRED(1010, "Token is required", HttpStatus.BAD_REQUEST),
+    USER_NOT_FOUND_IN_TOKEN(1011, "User in token not found", HttpStatus.NOT_FOUND),
     USER_UNABLE_TO_SAVE(1003, "Unable to save user", HttpStatus.INTERNAL_SERVER_ERROR),
     USER_UNABLE_TO_UPDATE(1004, "Unable to update user", HttpStatus.INTERNAL_SERVER_ERROR),
     USER_UNABLE_TO_DELETE(1005, "Unable to delete user", HttpStatus.INTERNAL_SERVER_ERROR),
@@ -32,16 +41,18 @@ public enum Error {
     PRODUCT_UNABLE_TO_SAVE(2003, "Unable to save product", HttpStatus.INTERNAL_SERVER_ERROR),
     PRODUCT_UNABLE_TO_UPDATE(2004, "Unable to update product", HttpStatus.INTERNAL_SERVER_ERROR),
     PRODUCT_UNABLE_TO_DELETE(2005, "Unable to delete product", HttpStatus.INTERNAL_SERVER_ERROR),
-    PRODUCT_INVALID_NAME(2006, "Invalid name", HttpStatus.BAD_REQUEST),
-    PRODUCT_INVALID_PRICE(2007, "Invalid price", HttpStatus.BAD_REQUEST),
-    PRODUCT_INVALID_STOCK(2008, "Invalid stock", HttpStatus.BAD_REQUEST),
-    PRODUCT_INVALID_DESCRIPTION(2009, "Invalid description", HttpStatus.BAD_REQUEST),
-    PRODUCT_UNABLE_TO_STOCK(2010, "Invalid stock", HttpStatus.INTERNAL_SERVER_ERROR),
+    PRODUCT_INVALID_NAME(2006, "Product name is invalid: Name cannot be empty or contain special characters", HttpStatus.BAD_REQUEST),
+    PRODUCT_INVALID_PRICE(2007, "Product price is invalid: Price must be a positive number", HttpStatus.BAD_REQUEST),
+    PRODUCT_INVALID_STOCK(2008, "Product stock is invalid: Stock must be a non-negative integer", HttpStatus.BAD_REQUEST),
+    PRODUCT_INVALID_DESCRIPTION(2009, "Product description is invalid: Description cannot be empty and must be under the character limit", HttpStatus.BAD_REQUEST),
+    PRODUCT_UNABLE_TO_STOCK(2010, "Unable to update stock: Stock exceeds the available inventory limit", HttpStatus.INTERNAL_SERVER_ERROR),
+
     PRODUCT_PRICE_TOO_LOW(2011, "Unit price must be greater than or equal to 0", HttpStatus.BAD_REQUEST),
     PRODUCT_PRICE_TOO_HIGH(2012, "Unit price must be less than or equal to 1000000000", HttpStatus.BAD_REQUEST),
     PRODUCT_STOCK_TOO_LOW(2013, "Unit stock must be greater than or equal to 0", HttpStatus.BAD_REQUEST),
     PRODUCT_STOCK_TOO_HIGH(2014, "Unit stock must be less than or equal to 1000", HttpStatus.BAD_REQUEST),
     PRODUCT_NAME_TOO_LONG(2015, "Product name must be less than or equal to 255 characters", HttpStatus.BAD_REQUEST),
+    QUANTITY_LOW(2016,"Quantity must be greater than 0",HttpStatus.BAD_REQUEST),
     //Order error codes
     //Category error codes
     CATEGORY_NOT_FOUND(3001, "Category not found", HttpStatus.NOT_FOUND),
@@ -70,18 +81,22 @@ public enum Error {
     CART_UNABLE_TO_SAVE(6003, "Unable to save Cart", HttpStatus.INTERNAL_SERVER_ERROR),
     CART_UNABLE_TO_UPDATE(6004, "Unable to update Cart", HttpStatus.INTERNAL_SERVER_ERROR),
     CART_UNABLE_TO_DELETE(6005, "Unable to delete Cart", HttpStatus.INTERNAL_SERVER_ERROR),
-
+    ORDER_NOT_FOUND(9001, "Order not found", HttpStatus.NOT_FOUND),
 
     CARTDETAIL_NOT_FOUND(5001, "Cart detail not found", HttpStatus.NOT_FOUND),
     CARTDETAIL_ALREADY_EXISTS(5002, "Cart detail already exists", HttpStatus.CONFLICT),
     CARTDETAIL_UNABLE_TO_SAVE(5003, "Unable to save Cart detail", HttpStatus.INTERNAL_SERVER_ERROR),
     CARTDETAIL_UNABLE_TO_UPDATE(5004, "Unable to update Cart detail", HttpStatus.INTERNAL_SERVER_ERROR),
     CARTDETAIL_UNABLE_TO_DELETE(5005, "Unable to delete Cart detail", HttpStatus.INTERNAL_SERVER_ERROR),
-    CARTDETAIL_INVALID_QUANTITY(5006, "Invalid quantity", HttpStatus.BAD_REQUEST),
+    CARTDETAIL_INVALID_QUANTITY(5006, "Invalid quantity: The requested quantity exceeds the available stock", HttpStatus.BAD_REQUEST),
+
     //Jwt token-related error
     JWT_INVALID(1101, "Invalid JWT token", HttpStatus.UNAUTHORIZED),
     JWT_EXPIRED(1102, "JWT token expired", HttpStatus.UNAUTHORIZED),
     JWT_MALFORMED(1103, "Malformed JWT token", HttpStatus.UNAUTHORIZED),
+    FILE_NOT_FOUND(6001, "File not found", HttpStatus.BAD_REQUEST),
+    INVALID_FILE_TYPE(6002, "Invalid file type", HttpStatus.BAD_REQUEST),
+    FILE_SIZE_EXCEEDED(6003, "File size exceeds the maximum allowed size", HttpStatus.BAD_REQUEST);
     ;
 
     private final int code;
